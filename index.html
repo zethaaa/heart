@@ -66,12 +66,10 @@
             70% { transform: scale(1.2); opacity: 0.8; }
             100% { transform: scale(1); opacity: 0.6; }
         }
-        /* 新增鼠标跟随爱心动画 */
         @keyframes floatUp {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
             100% { transform: translate(-50%, -100px) scale(0.5); opacity: 0; }
         }
-        /* 新增触摸涟漪动画 */
         @keyframes ripple {
             to { transform: scale(4); opacity: 0; }
         }
@@ -186,7 +184,6 @@
             z-index: 5;
             pointer-events: none;
         }
-        /* 触摸涟漪样式 */
         .touch-ripple {
             position: absolute;
             border-radius: 50%;
@@ -196,7 +193,6 @@
             pointer-events: none;
             z-index: 5;
         }
-        /* 加载动画样式 */
         #loader {
             position: fixed;
             inset: 0;
@@ -241,7 +237,11 @@
 <!-- 音频元素 -->
 <audio id="bgMusic" loop>
     <source src="mp3/youxie.mp3" type="audio/mpeg">
+    <source src="mp3/shihao.mp3" type="audio/mpeg">
+    <source src="mp3/wozhinenglk.mp3" type="audio/mpeg">
+
     <source src="youxie.ogg" type="audio/ogg">
+    <source src="shihao.ogg" type="audio/ogg">
 </audio>
 
 <!-- 音乐控制按钮 -->
@@ -299,7 +299,7 @@
         }, 100);
 
         // 随机时间后淡出并移除
-        const lifetime = random(3000, 6000);
+        const lifetime = random(2000, 4000);
         setTimeout(() => {
             text.style.opacity = '0';
             text.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(0.8)`;
@@ -310,7 +310,7 @@
     // 定期创建浮动文字
     function startCreatingTexts() {
         createLoveText();
-        setTimeout(startCreatingTexts, random(1500, 3500));
+        setTimeout(startCreatingTexts, random(200, 1000));
     }
 
     // 创建花瓣元素
@@ -479,11 +479,31 @@
         isPlaying = !isPlaying;
     });
 
-    // 底部按钮点击效果
+    // 底部按钮点击计数与切歌逻辑
+    let clickCount = 0;
     const missYouBtn = document.getElementById('miss-you');
     missYouBtn.addEventListener('click', (e) => {
         createHeartExplosion(e.clientX, e.clientY);
+        clickCount++;
+        if (clickCount === 2) {
+            switchTrack();
+            clickCount = 0;
+        }
     });
+
+    function switchTrack() {
+        const tracks = ['mp3/shihao.mp3','mp3/wozhinenglk.mp3','mp3/youxie.mp3'];
+        let currentIndex = 0;
+        const currentSrc = bgMusic.src;
+        for (let i = 0; i < tracks.length; i++) {
+            if (currentSrc.includes(tracks[i])) {
+                currentIndex = (i + 1) % tracks.length;
+                break;
+            }
+        }
+        bgMusic.src = tracks[currentIndex];
+        bgMusic.play().catch(e => console.log('播放需要用户交互'));
+    }
 
     // 鼠标跟随爱心尾迹
     document.addEventListener('mousemove', (e) => {
